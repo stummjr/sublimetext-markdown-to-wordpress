@@ -20,18 +20,21 @@ from markdown2 import markdown
 
 
 class MarkdownToWordpressCommand(sublime_plugin.TextCommand):
-
-    url = "http:// .wordpress.com/xmlrpc.php"
-    user = ''
-    passwd = ''
+    settings = sublime.load_settings('MarkdownToWordpress.sublime-settings')
+    url = "http://%s/xmlrpc.php" % (settings.get('blog_address'))
+    username = settings.get('username')
+    password = settings.get('password')
 
     def run(self, edit):
-        wp = wordpresslib.WordPressClient(self.url, self.user, self.passwd)
+        wp = wordpresslib.WordPressClient(self.url, self.username, self.password)
         region = sublime.Region(0, self.view.size())
         post = wordpresslib.WordPressPost()
         post.title = self.get_title(self.view.substr(region))
         post.description = unicode(self.markdown_to_html(self.view.substr(region)))
-        wp.newPost(post, True)
+        try:
+            wp.newPost(post, True)
+        except wordpresslib.WordPressException:
+            sublime.error_message('Error logging in at wordpress blog. Please check your credentials!')
 
     def markdown_to_html(self, markdown_text):
         markdown_html = markdown(markdown_text, extras=['toc', 'fenced-code-blocks'])
