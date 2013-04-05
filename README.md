@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 MarkdownToWordpress
 ===================
 
@@ -19,9 +18,3 @@ Now, make sure your wordpress blog has the XML-RPC module enabled (`.wordpress.c
 
 # Security concerns
 I know that storing the password as plain text is a really bad idea, but I'm looking for another approach to authenticate users to remove this shortcoming. And remember, I am not responsible for your password. :)
-=======
-Sublime Text 2 Markdown To Wordpress Plugin
-===========================================
-
-Sublime Text 2 plugin to publish HTML data from a Markdown file to Wordpress.
->>>>>>> 1a9a792c7d0fbf39a7c29c98c560e6b8b82265b6
