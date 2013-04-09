@@ -14,38 +14,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import sublime
+import xmlrpclib
 import wordpresslib
 import sublime_plugin
 from markdown2 import markdown
 
 
 class MarkdownToWordpressCommand(sublime_plugin.TextCommand):
-    settings = sublime.load_settings('MarkdownToWordpress.sublime-settings')
-    url = "http://%s/xmlrpc.php" % (settings.get('blog_address'))
-    username = settings.get('username')
-    password = settings.get('password')
-
     def run(self, edit):
-        wp = wordpresslib.WordPressClient(self.url, self.username, self.password)
+        window = sublime.active_window()
+        window.show_input_panel("Password: ", "", self.on_done, None, None)
+
+    def on_done(self, password):
+        settings = sublime.load_settings('MarkdownToWordpress.sublime-settings')
+        url = "http://%s/xmlrpc.php" % (settings.get('blog_address'))
+        username = settings.get('username')
+        wp = wordpresslib.WordPressClient(url, username, password)
         region = sublime.Region(0, self.view.size())
         post = wordpresslib.WordPressPost()
-        post.title = self.get_title(self.view.substr(region))
-        post.description = unicode(self.markdown_to_html(self.view.substr(region)))
+        markdown_text = self.view.substr(region)
+        # the first line of the post is its title
+        post.title = markdown_text.split('\n')[0]
+        post.description = unicode(markdown_to_html(markdown_text))
         try:
             wp.newPost(post, True)
-        except wordpresslib.WordPressException:
-            sublime.error_message('Error logging in at wordpress blog. Please check your credentials!')
+        except xmlrpclib.Fault:
+            sublime.error_message("Wrong wordpress username/password.")
 
-    def markdown_to_html(self, markdown_text):
-        markdown_html = markdown(markdown_text, extras=['toc', 'fenced-code-blocks'])
-        toc_html = markdown_html.toc_html
-        if toc_html:
-            toc_markers = ['[toc]', '[TOC]', '<!--TOC-->']
-            for marker in toc_markers:
-                markdown_html = markdown_html.replace(marker, toc_html)
-        return markdown_html
 
-    def get_title(self, markdown_text):
-        """ The first line of the post is its title.
-        """
-        return markdown_text.split('\n')[0]
+def markdown_to_html(markdown_text):
+    markdown_html = markdown(markdown_text, extras=['toc', 'fenced-code-blocks'])
+    toc_html = markdown_html.toc_html
+    if toc_html:
+        toc_markers = ['[toc]', '[TOC]', '<!--TOC-->']
+        for marker in toc_markers:
+            markdown_html = markdown_html.replace(marker, toc_html)
+    return markdown_html
