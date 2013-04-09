@@ -9,7 +9,6 @@ After installation, you should add your wordpress credentials and weblog address
 
     {
         "username": "johndoe",
-        "password": "anypassword", 
         "blog_address": "myblog.mydomain.com" // no http prefix here!
     }
 
@@ -17,4 +16,4 @@ Now, make sure your wordpress blog has the XML-RPC module enabled (`.wordpress.c
 
 
 # Security concerns
-I know that storing the password as plain text is a really bad idea, but I'm looking for another approach to authenticate users to remove this shortcoming. And remember, I am not responsible for your password. :)
+I am aware that typing our password in a text input field is not the best approach to read user's password. I'm looking for another approach to authenticate users to remove this shortcoming. And remember, I am not responsible for your password. :)
